@@ -1,13 +1,16 @@
 const express = require('express');
 const http = require('http');
+const morgan = require('morgan');           //Morgan is used for logging purposes
 
 const hostname = 'localhost';
 const port = 3000;
 
 const app = express();            //express will provide some methods
+app.use(morgan('dev'));
+
+app.use(express.static(__dirname + '/public'));  //this will find the html pages in public folder
 
 app.use((req, res, next) => {
-    console.log(req.headers);
     res.statusCode = 200;
     res.setHeader('Content-Type', 'text/html');
     res.end('<html><body><h1>This is an Express Server</h1></body></html>');
