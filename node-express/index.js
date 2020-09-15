@@ -4,6 +4,8 @@ const morgan = require('morgan');           //Morgan is used for logging purpose
 const bodyParser = require('body-parser');
 
 const dishRouter = require('./routes/dishRouter');
+const promoRouter = require('./routes/promoRouter');
+const leaderRouter = require('./routes/leaderRouter');
 
 const hostname = 'localhost';
 const port = 3000;
@@ -12,26 +14,17 @@ const app = express();            //express will provide some methods
 app.use(morgan('dev'));
 app.use(bodyParser.json());
 
+//Dishes
 app.use('/dishes', dishRouter);
+app.use('/dishes/:dishId', dishRouter);
 
-//Now for a particular Dish
-//app.get('/dishes/:dishId', (req,res,next) => {
-//    res.end('Will send details of the dish : ' + req.params.dishId + ' to you!');
-//});
-//
-//app.post('/dishes/:dishId', (req, res, next) => {
-//  res.statusCode = 403;
-//  res.end('POST operation not supported on /dishes/'+ req.params.dishId);
-//});
-//
-//app.put('/dishes/:dishId', (req, res, next) => {
-//  res.write('Updating the dish : ' + req.params.dishId + '\n');
-//  res.end('Will update the dish : ' + req.body.name + ' with details : ' + req.body.description);
-//});
-//
-//app.delete('/dishes/:dishId', (req, res, next) => {
-//    res.end('Deleting dish : ' + req.params.dishId);
-//});
+//Promotions
+app.use('/promotions', promoRouter);
+app.use('/promotions/:promoId', promoRouter);
+
+//Leaders
+app.use('/leaders', leaderRouter);
+app.use('/leaders/:leaderId', leaderRouter);
 
 app.use(express.static(__dirname + '/public'));  //this will find the html pages in public folder
 
