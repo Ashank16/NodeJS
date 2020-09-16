@@ -16,15 +16,12 @@ app.use(bodyParser.json());
 
 //Dishes
 app.use('/dishes', dishRouter);
-app.use('/dishes/:dishId', dishRouter);
 
 //Promotions
 app.use('/promotions', promoRouter);
-app.use('/promotions/:promoId', promoRouter);
 
 //Leaders
 app.use('/leaders', leaderRouter);
-app.use('/leaders/:leaderId', leaderRouter);
 
 app.use(express.static(__dirname + '/public'));  //this will find the html pages in public folder
 
