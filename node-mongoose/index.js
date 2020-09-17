@@ -13,17 +13,33 @@ connect.then((db) => {
         description: 'test'
     })
     .then((dish) => {
-        console.log(dish);
+        console.log(JSON.stringify(dish, null, " "));
             
-        return Dishes.find({}).exec();
+        return Dishes.findByIdAndUpdate(dish._id, {
+            $set: { description: 'Updated test' }
+        },{
+            new: true
+        })
+        .exec();
     })
-    .then((dishes) => {
-        console.log(dishes);
-            
-        return Dishes.remove({});            
+    .then((dish) => {
+        console.log(JSON.stringify(dish, null, " "));
+
+        dish.comments.push({
+            rating: 5,
+            comment: 'I\'m getting a sinking feeling!',
+            author: 'Leonardo di Carpaccio'
+        });
+
+        return dish.save();
+    })
+    .then((dish) => {
+        console.log(JSON.stringify(dish, null, " "));
+
+        return Dishes.remove({});
     })
     .then(() => {
-        return mongoose.connection.close();            
+        return mongoose.connection.close();
     })
     .catch((err) => {
         console.log(err);
