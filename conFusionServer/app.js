@@ -34,38 +34,52 @@ app.set('view engine', 'jade');
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
+app.use(cookieParser('12345-67890-09876-54321'));
 
 //applying authorization
 function auth (req, res, next) {
-    console.log(req.headers);
-    var authHeader = req.headers.authorization;  //checking auth in the request header
-    if (!authHeader) {
-        var err = new Error('You are not authenticated!');
-        res.setHeader('WWW-Authenticate', 'Basic');  
-        //challenging user to auth him/herself by responding in the response header
-        err.status = 401;
-        return next(err);        
-    }
-
-    var auth = new Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':');
-    // In [0] index 'Basic' is there and in [1] index username and password is there.
-    //1) Splitting them using space as the delimiter.
-    //2) Converting the username and password to base64
-    //3) After that again converting them to String 
-    //4) And then splitting them using ':' as delimiter(as it will be in the form username:password)
+    console.log(req.signedCookies);
     
-    //Now checking it is correct or not
-    var username = auth[0];
-    var password = auth[1];
-    if (username === 'admin' && password === 'password') {
-        next();                                                 // authorized
-    } 
+    if (!req.signedCookies.user) {
+        var authHeader = req.headers.authorization;  //checking auth in the request header
+        if (!authHeader) {
+            var err = new Error('You are not authenticated!');
+            res.setHeader('WWW-Authenticate', 'Basic');  
+            //challenging user to auth him/herself by responding in the response header
+            err.status = 401;
+            return next(err);        
+        }
+
+        var auth = new Buffer.from(authHeader.split(' ')[1], 'base64').toString().split(':');
+        // In [0] index 'Basic' is there and in [1] index username and password is there.
+        //1) Splitting them using space as the delimiter.
+        //2) Converting the username and password to base64
+        //3) After that again converting them to String 
+        //4) And then splitting them using ':' as delimiter(as it will be in the form username:password)
+
+        //Now checking it is correct or not
+        var username = auth[0];
+        var password = auth[1];
+        if (username === 'admin' && password === 'password') {
+            res.cookie('user','admin', { signed: true });
+            next();                                                 // authorized
+        } 
+        else {
+            var err = new Error('You are not authenticated!');
+            res.setHeader('WWW-Authenticate', 'Basic');      
+            err.status = 401;
+            return next(err);
+        }
+    }
     else {
-        var err = new Error('You are not authenticated!');
-        res.setHeader('WWW-Authenticate', 'Basic');      
-        err.status = 401;
-        next(err);
+        if (req.signedCookies.user === 'admin') {
+            next();
+        }
+        else {
+            var err = new Error('You are not authenticated!');
+            err.status = 401;
+            return next(err);
+        }
     }
 }
 
