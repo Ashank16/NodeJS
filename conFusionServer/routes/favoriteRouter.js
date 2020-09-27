@@ -94,20 +94,26 @@ favoriteRouter.route("/:dishId")
 .options(cors.corsWithOptions, (req, res) => { res.sendStatus(200); })
 .get(cors.cors, verifyUser, (req, res, next) => {
     Favorites.findOne({ user: req.user._id })
-    .then(favorites => {        
+    .then((favorites) => {
         if (!favorites) {
-            return res.json({ exists: false, favorites: favorites });
-        } 
+            res.statusCode = 200;
+            res.setHeader('Content-Type', 'application/json');
+            return res.json({"exists": false, "favorites": favorites});
+        }
         else {
             if (favorites.dishes.indexOf(req.params.dishId) < 0) {
-                return res.json({ exists: false, favorites: favorites });
-            } 
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/json');
+                return res.json({"exists": false, "favorites": favorites});
+            }
             else {
-                return res.json({ exists: true, favorites: favorites });
+                res.statusCode = 200;
+                res.setHeader('Content-Type', 'application/json');
+                return res.json({"exists": true, "favorites": favorites});
             }
         }
     },err => next(err))
-    .catch(err => next(err));
+    .catch((err) => next(err));
 })
 .post(cors.corsWithOptions, verifyUser, (req, res, next) => {
     // we will apply logic from route "/", instead of req.body we will use req.params.dishId
@@ -120,11 +126,11 @@ favoriteRouter.route("/:dishId")
                 console.log("New Favorite created");
                 favorite.dishes.push(req.params.dishId);
                 favorite.save()
-                .then(favorite => {
+                .then((favorite) => {
                     Favorites.findById(favorite._id)
                     .populate("user")
                     .populate("dishes")
-                    .then(favorite => {
+                    .then((favorite) => {
                         console.log("dish added to favorites");
                         res.statusCode = 200;
                         res.setHeader("Content-Type", "application/json");
@@ -143,7 +149,7 @@ favoriteRouter.route("/:dishId")
                 Favorites.findById(favorite._id)
                 .populate("user")
                 .populate("dishes")
-                .then(favorite => {
+                .then((favorite) => {
                     console.log("dish added to favorites");
                     res.statusCode = 200;
                     res.setHeader("Content-Type", "application/json");
